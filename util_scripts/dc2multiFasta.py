@@ -29,50 +29,73 @@ def get_bog(dcfile, pid_cutoff=0, ks_cutoff=20, syn_len_cutoff=5,
 
 
 def parse_bog(bog):
-    passing_genes_cp = {}
-    passing_genes_pc = {}
+    """
+    We need a way to maintain relationships among genes once we hav established they only arise once.
+    :param bog: bag of genes relationship
+    :return:  list of genes that are related in order such that [cgene0,pgene0,cgene1,pgene1....]
+    """
+    passing_genes = []
     graph = nx.Graph()
     for gene in bog:
-        for classy_gene in bog[gene]['pass']:  # this can be 1 but that should be the lower limit.
+        for classy_gene in bog[gene]['pass'] + bog[gene]['fail']:  # this can be 1 but that should be the lower limit.
             print(classy_gene.pgene, classy_gene.cgene)
             if graph.has_edge(u=str(classy_gene.pgene) , v=str(classy_gene.cgene) ) is False: # this way we will only add each gene relationship once.
                 graph.add_edge(str(classy_gene.pgene),str(classy_gene.cgene))
                 graph.add_edge(str(classy_gene.cgene),str(classy_gene.pgene))
-                passing_genes_cp[classy_gene.cgene] = classy_gene.pgene
-                passing_genes_pc[classy_gene.pgene] = classy_gene  # this is important for writing files, out.
-                print(classy_gene.cgene)
-    return [passing_genes_cp, passing_genes_pc]
+                passing_genes.append(classy_gene)  # this is important for writing files, out.
+    return passing_genes
 
 if __name__ =='__main__':
-    """
-        #corVcor ks
-         dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
-                '51576_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
-         parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
-         child_seqs = parent_seqs
-         target_dir = '/home/ndh0004/Downloads/ksSeqs'
-    #cor vs indica 
+
+    #corVcor ks
     dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
-             'corVind_51576_51674.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+            '51576_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
     parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
-    child_seqs = '/run/user/1000/gvfs/sftp:host=gate.csm.auburn.edu,user' \
-                 '=ndh0004/home/biolinux/scratch/Eleusine_Synteny_Proj/data/simple_indica_cds.fa'
-    target_dir = '/home/ndh0004/Downloads/OroVsCorKsSeqs'
-    # note parent was set a for get_bog()
-    """
-    dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/51527_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
-    parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
-    child_seqs = '/home/ndh0004/Documents/gg_ortho_indica/gene_named_Oropetium_thomaeum-ft-CDS-gid-51527.fasta'
-    target_dir = '/home/ndh0004/Downloads/OroVsCorKsSeqs'
+    child_seqs = parent_seqs
+    target_dir = '/home/ndh0004/Downloads/ksSeqs'
     bog = get_bog(dcfile=dcfile,
             pid_cutoff=0,
             ks_cutoff=20,
             syn_len_cutoff=5,
             strict_ks=False,
-            qac=False )
-    cp_dict, pc_dict = parse_bog(bog)
-    gg.write_parent_fastas(pc_dict,parent_seqs,target_dir)
-    gg.append_seqs_to_parent_fastas(pc_dict,cp_dict,child_seqs,target_dir)
+            qac=False,
+            parent='b')
+    passing_genes = parse_bog(bog)
+    gg.write_parent_fastas_from_list(passing_genes,parent_seqs,target_dir)
+    gg.append_seqs_to_parent_fastas_from_list(passing_genes,child_seqs,target_dir)
+
+    # indica vs coracana
+    dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
+             'corVind_51576_51674.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+    parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
+    child_seqs = '/home/ndh0004/Documents/gg_ortho_indica/gene_named_Eleusine_indica-ft-CDS-gid-52024.fasta'
+    target_dir = '/home/ndh0004/Downloads/IndVsCorKsSeqs'
+    # note parent was set a for get_bog()
+    bog = get_bog(dcfile=dcfile,
+            pid_cutoff=0,
+            ks_cutoff=20,
+            syn_len_cutoff=5,
+            strict_ks=False,
+            qac=False,
+            parent='a')
+    passing_genes = parse_bog(bog)
+    gg.write_parent_fastas_from_list(passing_genes,parent_seqs,target_dir)
+    gg.append_seqs_to_parent_fastas_from_list(passing_genes,child_seqs,target_dir)
+    dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/51527_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+    parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
+    child_seqs = '/home/ndh0004/Documents/gg_ortho_indica/gene_named_Oropetium_thomaeum-ft-CDS-gid-51527.fasta'
+    target_dir = '/home/ndh0004/Downloads/OroVsCorKsSeqs'
+    #oropetium vs coracana
+    bog = get_bog(dcfile=dcfile,
+            pid_cutoff=0,
+            ks_cutoff=20,
+            syn_len_cutoff=5,
+            strict_ks=False,
+            qac=False,
+            parent='b')
+    passing_genes = parse_bog(bog)
+    gg.write_parent_fastas_from_list(passing_genes,parent_seqs,target_dir)
+    gg.append_seqs_to_parent_fastas_from_list(passing_genes,child_seqs,target_dir)
 
 
 

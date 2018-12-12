@@ -440,6 +440,79 @@ def write_parent_fastas(pc_dict,parent_seqs,target_dir):
                 f.write(outstring)
                 f.close()
 
+def write_parent_fastas_from_list(passing_genes,parent_seqs,target_dir):
+    target_dir = target_dir.rstrip('/') + '/'
+    createFolder(target_dir)
+    fasta_dict = {}
+    with open(parent_seqs,'r') as seq_handle:
+        seqs= SeqIO.parse(seq_handle,'fasta')
+        for record in seqs :
+            """seqs fasta cds names must perfectly match the fasta used here.
+               If we started something like re matching. The problem would be
+               that g1 would could find g1,g10,g100 without specific knowledge
+               of the naming conventions and rules which are varied.  
+            """
+            key = str(record.id)
+            assert key not in fasta_dict, 'repeated cds name {n}'.format(n=key)
+            fasta_dict[key] = record
+
+        for classy_gene in passing_genes:
+            assert classy_gene.pgene in fasta_dict, '{n} gene missing from {f}'.format(n=classy_gene.pgene,
+                                                                                      f=seq_handle)
+            outhandle = '{g}.fa'.format(g=str(classy_gene.pgene))
+            record = fasta_dict[classy_gene.pgene]
+            outstring = '>{pg}\n{pseq}\n'.format(
+                pg=str(record.id),
+                pseq=str(record.seq)
+            )
+            block_folder = '{t}/{b}'.format(t=target_dir,b=classy_gene.ptregion.replace("\t",'_'))
+            createFolder(block_folder)
+            full_out_path = '{b}/{g}'.format(b=block_folder,g=outhandle)
+            f = open(full_out_path,'w')
+            f.write(outstring)
+            f.close()
+
+def append_seqs_to_parent_fastas_from_list(passing_genes,parent_seqs,target_dir):
+    target_dir = target_dir.rstrip('/') + '/'
+    fasta_dict = {}
+    missing_genes = '{t}missing_genes.list'.format(t=target_dir)
+    fout = open(missing_genes, 'w')
+    with open(parent_seqs,'r') as seq_handle:
+        seqs= SeqIO.parse(seq_handle,'fasta')
+        for record in seqs :
+            """seqs fasta cds names must perfectly match the fasta used here.
+               If we started something like re matching. The problem would be
+               that g1 would could find g1,g10,g100 without specific knowledge
+               of the naming conventions and rules which are varied.  
+            """
+            key = str(record.id)
+            assert key not in fasta_dict, 'repeated cds name {n}'.format(n=key)
+            fasta_dict[key] = record
+
+        for classy_gene in passing_genes:
+            classy_cgene = classy_gene.cgene
+            if classy_cgene not in fasta_dict:
+                outMes = '{c}\t{p}\t{f}\n'.format(
+                    c=classy_gene.cgene,
+                    f=parent_seqs,
+                    p=classy_gene.pgene
+                )
+                fout.write(outMes)
+            else:
+
+                outhandle = '{g}.fa'.format(g=str(classy_gene.pgene))
+                record = fasta_dict[classy_gene.cgene]
+                outstring = '>{pg}\n{pseq}\n'.format(
+                    pg=str(record.id),
+                    pseq=str(record.seq)
+                )
+                block_folder = '{t}/{b}'.format(t=target_dir,b=classy_gene.ptregion.replace("\t",'_'))
+                full_out_path = '{b}/{g}'.format(b=block_folder,g=outhandle)
+                f = open(full_out_path,'a')
+                f.write(outstring)
+                f.close()
+        fout.close()
+
 def append_seqs_to_parent_fastas(pc_dict,cp_dict, child_seqs,target_dir):
     target_dir = target_dir.rstrip('/') + '/'
     with open(child_seqs,'r') as seq_handle:
