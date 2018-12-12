@@ -44,21 +44,35 @@ def parse_bog(bog):
     return [passing_genes_cp, passing_genes_pc]
 
 if __name__ =='__main__':
-
-     dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
-            '51576_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
-     parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
-     child_seqs = parent_seqs
-     target_dir = '/home/ndh0004/Downloads/ksSeqs'
-     bog = get_bog(dcfile=dcfile,
+    """
+        #corVcor ks
+         dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
+                '51576_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+         parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
+         child_seqs = parent_seqs
+         target_dir = '/home/ndh0004/Downloads/ksSeqs'
+    #cor vs indica 
+    dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/' \
+             'corVind_51576_51674.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+    parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
+    child_seqs = '/run/user/1000/gvfs/sftp:host=gate.csm.auburn.edu,user' \
+                 '=ndh0004/home/biolinux/scratch/Eleusine_Synteny_Proj/data/simple_indica_cds.fa'
+    target_dir = '/home/ndh0004/Downloads/OroVsCorKsSeqs'
+    # note parent was set a for get_bog()
+    """
+    dcfile = '/home/ndh0004/Downloads/tmp_passthrough_files/51527_51576.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.gcoords.ks'
+    parent_seqs = '/home/ndh0004/Documents/gg_ortho_indica/Ecor_PR202_maker_predicted_transcripts2.fa'
+    child_seqs = '/home/ndh0004/Documents/gg_ortho_indica/gene_named_Oropetium_thomaeum-ft-CDS-gid-51527.fasta'
+    target_dir = '/home/ndh0004/Downloads/OroVsCorKsSeqs'
+    bog = get_bog(dcfile=dcfile,
             pid_cutoff=0,
             ks_cutoff=20,
             syn_len_cutoff=5,
             strict_ks=False,
-            qac=False)
-     cp_dict, pc_dict = parse_bog(bog)
-     gg.write_parent_fastas(pc_dict,parent_seqs,target_dir)
-     gg.append_seqs_to_parent_fastas(pc_dict,cp_dict,child_seqs,target_dir)
+            qac=False )
+    cp_dict, pc_dict = parse_bog(bog)
+    gg.write_parent_fastas(pc_dict,parent_seqs,target_dir)
+    gg.append_seqs_to_parent_fastas(pc_dict,cp_dict,child_seqs,target_dir)
 
 
 

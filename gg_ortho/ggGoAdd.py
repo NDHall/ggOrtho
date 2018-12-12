@@ -43,6 +43,7 @@ if __name__ == '__main__':
 
 
     yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_5.yaml'
+    yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_8.yaml'
     yobj = yaml.load(open(yaml_config, 'r'))
 
     if 'blast_and_seq' in yobj:

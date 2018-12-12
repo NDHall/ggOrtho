@@ -49,7 +49,7 @@ if __name__ == '__main__':
     #   prop = 1
     #   parent = 'b'
     #   ks = True
-    yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_7.yaml'
+    yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_8.yaml'
 
     yobj = yaml.load(open(yaml_config, 'r'))
     prop = yobj['prop']

@@ -22,6 +22,6 @@ def select_alns(yaml_config):
 
 if __name__ == '__main__':
 
-    yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_6.yaml'
+    yaml_config = '/home/ndh0004/Documents/gg_ortho_indica/config_8.yaml'
 
     select_alns(yaml_config)
